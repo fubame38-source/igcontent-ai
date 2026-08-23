@@ -52,10 +52,22 @@ label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase
 .section-title{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
 .hero{font-size:26px;font-weight:900;letter-spacing:-.05em;margin-bottom:4px}
 .sub{color:var(--text2);font-size:13px}
-.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
-.media-item{border-radius:12px;overflow:hidden;border:1px solid var(--border);background:rgba(255,255,255,.02);position:relative;aspect-ratio:9/16;display:flex;align-items:flex-end}
-.media-item img,.media-item video{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.media-stats{position:relative;z-index:1;width:100%;padding:8px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);font-size:11px;font-weight:700}
+.media-grid{display:flex;flex-direction:column;gap:10px}
+.media-row{border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.02);overflow:hidden;transition:.15s}
+.media-row:hover{border-color:var(--border-glow)}
+.media-row-head{display:flex;align-items:center;gap:14px;padding:12px 14px;cursor:pointer}
+.media-thumb{width:52px;height:52px;border-radius:9px;overflow:hidden;flex-shrink:0;background:rgba(255,255,255,.04);position:relative}
+.media-thumb img{width:100%;height:100%;object-fit:cover}
+.media-row-info{flex:1;min-width:0}
+.media-row-caption{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:480px}
+.media-row-stats{font-size:11px;color:var(--text3);margin-top:2px}
+.media-row-chevron{color:var(--text3);font-size:12px;transition:.2s;flex-shrink:0}
+.media-row.open .media-row-chevron{transform:rotate(90deg);color:var(--cyan)}
+.media-analysis{max-height:0;overflow:hidden;transition:max-height .25s ease}
+.media-analysis-inner{padding:0 14px 16px 14px;border-top:1px solid var(--border)}
+.analysis-block{margin-top:12px}
+.analysis-label{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--cyan);margin-bottom:5px}
+.analysis-text{font-size:12.5px;color:var(--text2);line-height:1.6}
 .idea-card{border:1px solid var(--border);border-radius:12px;padding:14px;background:rgba(255,255,255,.02);margin-bottom:10px;position:relative;overflow:hidden}
 .idea-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(var(--cyan),var(--blue))}
 .idea-hook{font-weight:700;font-size:13px;margin-bottom:4px}
@@ -107,24 +119,20 @@ label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase
     <div class="card" style="margin-bottom:14px">
       <div class="section-title">Hesap</div>
       <div class="sub" id="ig-account-label">—</div>
-      <button class="btn btn-primary" style="width:auto;padding:10px 18px;margin-top:12px" onclick="fetchAndAnalyze()">Reels'leri Çek & Analiz Et</button>
+      <button class="btn btn-primary" style="width:auto;padding:10px 18px;margin-top:12px" onclick="fetchMedia()">Reels'leri Çek</button>
     </div>
 
     <div id="loading-row" class="hidden card">
-      <div class="spinner"></div> Reels çekiliyor ve analiz ediliyor... (15-30 sn sürebilir)
+      <div class="spinner"></div> Reels çekiliyor...
     </div>
 
     <div id="media-section" class="hidden">
-      <div class="section-title">Son Reels — Performans</div>
+      <div class="section-title">Son Reels — bir tanesine tıkla, analiz edelim</div>
       <div class="media-grid" id="media-grid"></div>
-    </div>
-
-    <div id="ideas-section" class="hidden" style="margin-top:20px">
-      <div class="section-title">Önerilen İçerik Fikirleri</div>
-      <div id="ideas-list"></div>
     </div>
   </div>
 </div>
+
 
 <script>
 // ── Yapılandırma ──
@@ -200,8 +208,6 @@ async function exchangeAndListAccounts(shortToken) {
     body: JSON.stringify({ access_token: longToken })
   }).then(r => r.json());
 
-  alert('PAGES DATA: ' + JSON.stringify(pages).slice(0, 800));
-
   const pageWithIG = (pages.data || []).find(p => p.instagram_business_account);
   if (!pageWithIG) {
     alert("Bağlı bir Instagram Business hesabı bulunamadı. Hesabının Business/Creator olduğundan ve bir Facebook Page'e bağlı olduğundan emin ol.");
@@ -221,58 +227,107 @@ async function exchangeAndListAccounts(shortToken) {
   document.getElementById('ig-account-label').textContent = `Bağlandı: ${pageWithIG.name}`;
 }
 
-// ── REELS ÇEK + ANALİZ ──
-async function fetchAndAnalyze() {
+// ── REELS ÇEK ──
+let mediaList = [];
+
+async function fetchMedia() {
   document.getElementById('loading-row').classList.remove('hidden');
   document.getElementById('media-section').classList.add('hidden');
-  document.getElementById('ideas-section').classList.add('hidden');
 
   const mediaRes = await fetch(`${WORKER_URL}/fetch-media`, {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ ig_user_id: igAccount.ig_user_id, access_token: igAccount.access_token, limit: 20 })
   }).then(r => r.json());
 
-  renderMedia(mediaRes.data || []);
-
-  const analysisRes = await fetch(`${WORKER_URL}/analyze`, {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ media_list: (mediaRes.data || []).map(m => ({
-      caption: m.caption, insights: m.insights
-    })) })
-  }).then(r => r.json());
-
-  renderIdeas(analysisRes);
+  mediaList = mediaRes.data || [];
+  renderMedia(mediaList);
   document.getElementById('loading-row').classList.add('hidden');
 }
 
 function renderMedia(list) {
   const grid = document.getElementById('media-grid');
-  grid.innerHTML = list.map(m => {
-    const views = (m.insights.find(i => i.name === 'plays') || {}).values?.[0]?.value || '—';
-    return `<div class="media-item">
-      <img src="${m.media_url || ''}" onerror="this.style.display='none'">
-      <div class="media-stats">${views} izlenme</div>
+  grid.innerHTML = list.map((m, i) => {
+    const views = (m.insights.find(x => x.name === 'plays') || {}).values?.[0]?.value ?? '—';
+    const caption = (m.caption || '(caption yok)').slice(0, 90);
+    return `
+    <div class="media-row" id="row-${i}">
+      <div class="media-row-head" onclick="toggleAnalysis(${i})">
+        <div class="media-thumb"><img src="${m.media_url || ''}" onerror="this.style.display='none'"></div>
+        <div class="media-row-info">
+          <div class="media-row-caption">${caption}</div>
+          <div class="media-row-stats">${views} izlenme</div>
+        </div>
+        <div class="media-row-chevron">▶</div>
+      </div>
+      <div class="media-analysis" id="analysis-${i}">
+        <div class="media-analysis-inner" id="analysis-inner-${i}"></div>
+      </div>
     </div>`;
   }).join('');
   document.getElementById('media-section').classList.remove('hidden');
 }
 
-function renderIdeas(analysisRes) {
+// ── TEK VİDEO ANALİZİ (tıklayınca) ──
+async function toggleAnalysis(i) {
+  const row = document.getElementById(`row-${i}`);
+  const panel = document.getElementById(`analysis-${i}`);
+  const inner = document.getElementById(`analysis-inner-${i}`);
+  const isOpen = row.classList.contains('open');
+
+  if (isOpen) {
+    row.classList.remove('open');
+    panel.style.maxHeight = '0px';
+    return;
+  }
+  row.classList.add('open');
+
+  if (!inner.dataset.loaded) {
+    inner.innerHTML = `<div class="analysis-block"><div class="spinner"></div> Analiz ediliyor...</div>`;
+    panel.style.maxHeight = '80px';
+
+    const m = mediaList[i];
+    const res = await fetch(`${WORKER_URL}/analyze`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ media_list: [{ caption: m.caption, insights: m.insights }] })
+    }).then(r => r.json());
+
+    renderSingleAnalysis(inner, res);
+    inner.dataset.loaded = '1';
+  }
+  panel.style.maxHeight = inner.scrollHeight + 40 + 'px';
+}
+
+function renderSingleAnalysis(inner, res) {
   let parsed;
   try {
-    const text = analysisRes.content?.[0]?.text || '{}';
+    const text = res.content?.[0]?.text || '{}';
     parsed = JSON.parse(text);
-  } catch { parsed = { ideas: [] }; }
+  } catch { parsed = {}; }
 
-  const list = document.getElementById('ideas-list');
-  list.innerHTML = (parsed.ideas || []).map(idea => `
-    <div class="idea-card">
-      <div class="idea-hook">${idea.hook || ''}</div>
-      <div class="idea-meta">${idea.format || ''} · ${idea.topic || ''}</div>
-      <div class="idea-body">${idea.script_outline || ''}</div>
+  const verdict = parsed.performance_verdict || 'Yorum üretilemedi.';
+  const hook = parsed.hook_analysis || '—';
+  const ideas = parsed.ideas || [];
+
+  inner.innerHTML = `
+    <div class="analysis-block">
+      <div class="analysis-label">Performans Yorumu</div>
+      <div class="analysis-text">${verdict}</div>
     </div>
-  `).join('') || '<div class="empty-state">Henüz fikir üretilmedi.</div>';
-  document.getElementById('ideas-section').classList.remove('hidden');
+    <div class="analysis-block">
+      <div class="analysis-label">Hook Analizi</div>
+      <div class="analysis-text">${hook}</div>
+    </div>
+    <div class="analysis-block">
+      <div class="analysis-label">Buna Benzer 3 Yeni Fikir</div>
+      ${ideas.map(idea => `
+        <div class="idea-card">
+          <div class="idea-hook">${idea.hook || ''}</div>
+          <div class="idea-meta">${idea.format || ''} · ${idea.topic || ''}</div>
+          <div class="idea-body">${idea.script_outline || ''}</div>
+        </div>
+      `).join('') || '<div class="analysis-text">Fikir üretilemedi.</div>'}
+    </div>
+  `;
 }
 
 // ── BAŞLANGIÇ ──
