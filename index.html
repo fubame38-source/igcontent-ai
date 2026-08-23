@@ -299,10 +299,19 @@ async function toggleAnalysis(i) {
 
 function renderSingleAnalysis(inner, res) {
   let parsed;
+  let rawText = res.content?.[0]?.text || '';
   try {
-    const text = res.content?.[0]?.text || '{}';
+    let text = rawText.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '');
     parsed = JSON.parse(text);
-  } catch { parsed = {}; }
+  } catch { parsed = null; }
+
+  if (!parsed) {
+    inner.innerHTML = `<div class="analysis-block">
+      <div class="analysis-label">Ham Yanıt (JSON parse edilemedi)</div>
+      <div class="analysis-text" style="white-space:pre-wrap">${(rawText || JSON.stringify(res)).slice(0, 1500)}</div>
+    </div>`;
+    return;
+  }
 
   const verdict = parsed.performance_verdict || 'Yorum üretilemedi.';
   const hook = parsed.hook_analysis || '—';
