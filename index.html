@@ -53,21 +53,28 @@ label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase
 .hero{font-size:26px;font-weight:900;letter-spacing:-.05em;margin-bottom:4px}
 .sub{color:var(--text2);font-size:13px}
 .media-grid{display:flex;flex-direction:column;gap:10px}
-.media-row{border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.02);overflow:hidden;transition:.15s}
-.media-row:hover{border-color:var(--border-glow)}
+.media-row{border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.02);overflow:hidden;transition:.2s}
+.media-row:hover{border-color:var(--border-glow);background:rgba(255,255,255,.035)}
+.media-row.open{border-color:var(--border-glow);box-shadow:0 0 30px -12px var(--cyan-glow)}
 .media-row-head{display:flex;align-items:center;gap:14px;padding:12px 14px;cursor:pointer}
-.media-thumb{width:52px;height:52px;border-radius:9px;overflow:hidden;flex-shrink:0;background:rgba(255,255,255,.04);position:relative}
-.media-thumb img{width:100%;height:100%;object-fit:cover}
+.media-thumb{width:56px;height:56px;border-radius:9px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,rgba(45,212,191,.12),rgba(56,189,248,.08));display:flex;align-items:center;justify-content:center;position:relative}
+.media-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.media-thumb .fallback{font-size:18px;opacity:.35}
 .media-row-info{flex:1;min-width:0}
-.media-row-caption{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:480px}
-.media-row-stats{font-size:11px;color:var(--text3);margin-top:2px}
+.media-row-caption{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px}
+.media-row-stats{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}
+.stat-badge{font-size:10.5px;color:var(--text3);display:flex;align-items:center;gap:3px;font-family:var(--mono)}
+.stat-badge b{color:var(--text2);font-weight:600}
 .media-row-chevron{color:var(--text3);font-size:12px;transition:.2s;flex-shrink:0}
 .media-row.open .media-row-chevron{transform:rotate(90deg);color:var(--cyan)}
 .media-analysis{max-height:0;overflow:hidden;transition:max-height .25s ease}
 .media-analysis-inner{padding:0 14px 16px 14px;border-top:1px solid var(--border)}
-.analysis-block{margin-top:12px}
-.analysis-label{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--cyan);margin-bottom:5px}
-.analysis-text{font-size:12.5px;color:var(--text2);line-height:1.6}
+.analysis-block{margin-top:14px}
+.analysis-label{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--cyan);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.analysis-label::before{content:'';width:3px;height:11px;background:linear-gradient(var(--cyan),var(--blue));border-radius:2px}
+.analysis-text{font-size:12.5px;color:var(--text2);line-height:1.65}
+.idea-card{transition:.15s}
+.idea-card:hover{border-color:var(--border-glow);background:rgba(255,255,255,.035)}
 .idea-card{border:1px solid var(--border);border-radius:12px;padding:14px;background:rgba(255,255,255,.02);margin-bottom:10px;position:relative;overflow:hidden}
 .idea-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(var(--cyan),var(--blue))}
 .idea-hook{font-weight:700;font-size:13px;margin-bottom:4px}
@@ -175,8 +182,15 @@ function showAuthErr(msg) {
 async function boot() {
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  // TODO: Supabase'den bağlı ig_accounts kaydı var mı kontrol et
-  // varsa igAccount'u doldur ve dashboard'u göster
+
+  const { data: rows } = await sb.from('ig_accounts').select('*').eq('user_id', currentUser.id).limit(1);
+  if (rows && rows.length) {
+    const row = rows[0];
+    igAccount = { ig_user_id: row.ig_user_id, access_token: row.encrypted_token, fb_page_id: row.fb_page_id };
+    document.getElementById('connect-card').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    document.getElementById('ig-account-label').textContent = `Bağlandı: ${row.ig_username || row.ig_user_id}`;
+  }
 }
 
 // ── INSTAGRAM OAUTH (Facebook Login) ──
@@ -220,7 +234,13 @@ async function exchangeAndListAccounts(shortToken) {
     fb_page_id: pageWithIG.id
   };
 
-  // TODO: Supabase ig_accounts tablosuna kaydet (token'ı worker üzerinden şifreleyerek)
+  await sb.from('ig_accounts').upsert({
+    user_id: currentUser.id,
+    ig_user_id: igAccount.ig_user_id,
+    ig_username: pageWithIG.name,
+    fb_page_id: igAccount.fb_page_id,
+    encrypted_token: longToken
+  }, { onConflict: 'user_id,ig_user_id' });
 
   document.getElementById('connect-card').classList.add('hidden');
   document.getElementById('dashboard').classList.remove('hidden');
@@ -244,18 +264,36 @@ async function fetchMedia() {
   document.getElementById('loading-row').classList.add('hidden');
 }
 
+function fmtNum(n) {
+  n = Number(n) || 0;
+  return n.toLocaleString('tr-TR');
+}
+
 function renderMedia(list) {
   const grid = document.getElementById('media-grid');
   grid.innerHTML = list.map((m, i) => {
-    const views = (m.insights.find(x => x.name === 'plays') || {}).values?.[0]?.value ?? '—';
+    const get = name => (m.insights.find(x => x.name === name) || {}).values?.[0]?.value;
+    const views = get('plays');
+    const likes = get('likes');
+    const comments = get('comments');
+    const saved = get('saved');
+    const thumb = m.thumbnail_url || (m.media_type === 'IMAGE' ? m.media_url : '');
     const caption = (m.caption || '(caption yok)').slice(0, 90);
+
+    const statBadges = [
+      views != null ? `<span class="stat-badge">▶ <b>${fmtNum(views)}</b></span>` : '',
+      likes != null ? `<span class="stat-badge">♥ <b>${fmtNum(likes)}</b></span>` : '',
+      comments != null ? `<span class="stat-badge">💬 <b>${fmtNum(comments)}</b></span>` : '',
+      saved != null ? `<span class="stat-badge">🔖 <b>${fmtNum(saved)}</b></span>` : '',
+    ].filter(Boolean).join('');
+
     return `
     <div class="media-row" id="row-${i}">
       <div class="media-row-head" onclick="toggleAnalysis(${i})">
-        <div class="media-thumb"><img src="${m.media_url || ''}" onerror="this.style.display='none'"></div>
+        <div class="media-thumb">${thumb ? `<img src="${thumb}" onerror="this.parentElement.innerHTML='<span class=fallback>▶</span>'">` : `<span class="fallback">▶</span>`}</div>
         <div class="media-row-info">
           <div class="media-row-caption">${caption}</div>
-          <div class="media-row-stats">${views} izlenme</div>
+          <div class="media-row-stats">${statBadges || '<span class="stat-badge">veri yok</span>'}</div>
         </div>
         <div class="media-row-chevron">▶</div>
       </div>
