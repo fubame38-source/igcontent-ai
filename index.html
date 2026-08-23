@@ -10,79 +10,132 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f7f8fa;--surface:#ffffff;--surface-hover:#f0f2f5;
-  --border:rgba(15,23,42,.09);--border-glow:rgba(13,148,136,.4);
-  --text:#0f1720;--text2:#5b6472;--text3:#94a0ae;
-  --cyan:#0d9488;--cyan-glow:rgba(13,148,136,.16);
-  --blue:#0284c7;
-  --red:#dc2626;--red-light:rgba(220,38,38,.08);
-  --green:#16a34a;--green-light:rgba(22,163,74,.08);
+  --page:#eef1f5;--panel:#ffffff;
+  --ink:#14151a;--ink2:#6b7280;--ink3:#9aa1ac;
+  --line:rgba(20,21,26,.08);--line2:rgba(20,21,26,.05);
+  --teal:#0d9488;--teal-bg:#ccfbf1;
+  --sky:#0284c7;--sky-bg:#e0f2fe;
+  --red:#dc2626;--red-bg:#fee2e2;
   --font:'Geist',sans-serif;--mono:'Geist Mono',monospace;
-  --r:14px;
 }
 html,body{height:100%;-webkit-font-smoothing:antialiased}
-body{
-  font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;
-  background-image:
-    radial-gradient(circle at 15% 0%, rgba(13,148,136,.05), transparent 45%),
-    radial-gradient(circle at 85% 20%, rgba(2,132,199,.04), transparent 40%);
-  background-attachment:fixed;
-}
-.wrap{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
-/* AUTH */
-#auth-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:100}
-#auth-screen::before{content:'';position:absolute;top:-10%;left:-10%;width:500px;height:500px;background:radial-gradient(circle,var(--cyan-glow),transparent 70%);filter:blur(40px);opacity:.6;pointer-events:none}
-.auth-card{width:100%;max-width:380px;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:20px;position:relative;z-index:1;box-shadow:0 20px 60px rgba(15,23,42,.08)}
-.logo{display:flex;align-items:center;gap:9px;margin-bottom:24px;justify-content:center}
-.logo-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;box-shadow:0 6px 16px var(--cyan-glow)}
-.logo-name{font-size:18px;font-weight:800;letter-spacing:-.04em}
-input{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:10px;background:#fbfcfd;color:var(--text);font-family:var(--font);font-size:13px;outline:none;margin-bottom:12px;transition:.15s}
-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-glow)}
-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:5px}
-.btn{width:100%;padding:12px;border:none;border-radius:10px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
-.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff;box-shadow:0 6px 16px var(--cyan-glow)}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 22px var(--cyan-glow)}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
-/* MAIN */
+body{font-family:var(--font);background:var(--page);color:var(--ink);font-size:14px;line-height:1.5}
 .hidden{display:none!important}
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
-.card+.card{margin-top:14px}
-.card.glow{border-color:var(--border-glow);box-shadow:0 8px 30px -10px var(--cyan-glow)}
-.section-title{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
-.hero{font-size:26px;font-weight:900;letter-spacing:-.05em;margin-bottom:4px}
-.sub{color:var(--text2);font-size:13px}
-.media-grid{display:flex;flex-direction:column;gap:10px}
-.media-row{border-radius:12px;border:1px solid var(--border);background:var(--surface);overflow:hidden;transition:.2s;box-shadow:0 1px 2px rgba(15,23,42,.03)}
-.media-row:hover{border-color:var(--border-glow);box-shadow:0 4px 14px rgba(15,23,42,.06)}
-.media-row.open{border-color:var(--border-glow);box-shadow:0 8px 24px -8px var(--cyan-glow)}
-.media-row-head{display:flex;align-items:center;gap:14px;padding:12px 14px;cursor:pointer}
-.media-thumb{width:56px;height:56px;border-radius:9px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,rgba(13,148,136,.1),rgba(2,132,199,.08));display:flex;align-items:center;justify-content:center;position:relative}
-.media-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.media-thumb .fallback{font-size:18px;opacity:.35}
-.media-row-info{flex:1;min-width:0}
-.media-row-caption{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px}
-.media-row-stats{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}
-.stat-badge{font-size:10.5px;color:var(--text3);display:flex;align-items:center;gap:3px;font-family:var(--mono)}
-.stat-badge b{color:var(--text2);font-weight:600}
-.media-row-chevron{color:var(--text3);font-size:12px;transition:.2s;flex-shrink:0}
-.media-row.open .media-row-chevron{transform:rotate(90deg);color:var(--cyan)}
-.media-analysis{max-height:0;overflow:hidden;transition:max-height .25s ease}
-.media-analysis-inner{padding:0 14px 16px 14px;border-top:1px solid var(--border)}
-.analysis-block{margin-top:14px}
-.analysis-label{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.analysis-label::before{content:'';width:3px;height:11px;background:linear-gradient(var(--cyan),var(--blue));border-radius:2px}
-.info-card{border:1px solid var(--border);border-radius:12px;padding:14px 16px;background:#fbfcfd;box-shadow:0 1px 2px rgba(15,23,42,.03)}
-.analysis-text{font-size:12.5px;color:var(--text2);line-height:1.65}
-.idea-card{border:1px solid var(--border);border-radius:12px;padding:14px 16px 14px 18px;background:#fbfcfd;margin-bottom:10px;position:relative;overflow:hidden;transition:.15s;box-shadow:0 1px 2px rgba(15,23,42,.03)}
-.idea-card:hover{border-color:var(--border-glow);box-shadow:0 4px 14px rgba(15,23,42,.06)}
-.idea-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(var(--cyan),var(--blue))}
-.idea-hook{font-weight:700;font-size:13px;margin-bottom:5px;color:var(--text)}
-.idea-meta{font-size:11px;color:var(--cyan);margin-bottom:7px;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
-.idea-body{font-size:12px;color:var(--text2);line-height:1.6}
-.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+button{font-family:var(--font);cursor:pointer}
+
+/* ── AUTH ── */
+#auth-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--page)}
+.auth-card{width:100%;max-width:380px;padding:34px;background:var(--panel);border-radius:24px;box-shadow:0 20px 60px rgba(20,21,26,.08)}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:26px;justify-content:center}
+.logo-mark{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,#1c1d22,#33353d);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:13px}
+.logo-name{font-size:18px;font-weight:800;letter-spacing:-.03em}
+label{font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px}
+input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fbfbfc;color:var(--ink);font-family:var(--font);font-size:13px;outline:none;margin-bottom:13px;transition:.15s}
+input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-bg)}
+.btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:13px;font-weight:700;transition:.15s}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:hover{background:#000}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink2);margin-top:8px}
+.btn-ghost:hover{background:var(--line2)}
+.err-box{color:var(--red);font-size:12px;margin-bottom:12px;background:var(--red-bg);border-radius:9px;padding:9px 12px}
+
+/* ── SHELL ── */
+.page-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:26px 20px}
+.shell{width:100%;max-width:1180px;background:var(--panel);border-radius:28px;box-shadow:0 24px 70px rgba(20,21,26,.07);display:flex;overflow:hidden;min-height:calc(100vh - 52px)}
+
+/* rail */
+.rail{width:76px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:22px 0;border-right:1px solid var(--line2)}
+.rail-logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#1c1d22,#33353d);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:12px;margin-bottom:32px}
+.rail-nav{display:flex;flex-direction:column;gap:10px;flex:1}
+.rail-btn{width:42px;height:42px;border-radius:13px;border:none;background:transparent;color:var(--ink3);display:flex;align-items:center;justify-content:center;transition:.15s}
+.rail-btn:hover{background:var(--line2);color:var(--ink2)}
+.rail-btn.active{background:var(--ink);color:#fff}
+.rail-btn svg{width:19px;height:19px}
+.rail-logout{width:42px;height:42px;border-radius:13px;border:none;background:transparent;color:var(--ink3);display:flex;align-items:center;justify-content:center}
+.rail-logout:hover{background:var(--red-bg);color:var(--red)}
+
+/* main */
+.main{flex:1;padding:26px 30px 40px;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:21px;font-weight:800;letter-spacing:-.03em}
+.page-sub{font-size:12.5px;color:var(--ink3);margin-top:2px}
+.pill{display:flex;align-items:center;gap:7px;background:var(--teal-bg);color:var(--teal);font-size:12px;font-weight:700;padding:8px 13px;border-radius:100px}
+.pill-dot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+
+.content-grid{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start}
+@media(max-width:880px){.content-grid{grid-template-columns:1fr}.shell{flex-direction:column}.rail{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--line2);padding:14px 18px}.rail-nav{flex-direction:row}.rail-logo{margin:0 20px 0 0}.rail-logout{margin-left:auto}}
+
+/* hero card */
+.hero-card{background:linear-gradient(135deg,#1c1d22 0%,#26272e 55%,#33353d 100%);border-radius:22px;padding:24px 26px;color:#fff;position:relative;overflow:hidden;min-height:150px;display:flex;flex-direction:column;justify-content:space-between}
+.hero-card::after{content:'';position:absolute;top:-40%;right:-15%;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(13,148,136,.35),transparent 70%)}
+.hero-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.hero-chip{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center}
+.hero-chip svg{width:17px;height:17px}
+.hero-signal{display:flex;gap:3px;align-items:flex-end}
+.hero-signal span{width:3px;background:rgba(255,255,255,.5);border-radius:2px}
+.hero-signal span:nth-child(1){height:6px}.hero-signal span:nth-child(2){height:10px}.hero-signal span:nth-child(3){height:14px}.hero-signal span:nth-child(4){height:18px}
+.hero-handle{font-size:22px;font-weight:700;letter-spacing:.02em;position:relative;z-index:1;font-family:var(--mono)}
+.hero-bottom{display:flex;align-items:flex-end;justify-content:space-between;position:relative;z-index:1}
+.hero-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.5);margin-bottom:3px}
+.hero-value{font-size:13px;font-weight:600;color:rgba(255,255,255,.92)}
+.hero-mark{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center}
+.hero-mark svg{width:15px;height:15px}
+.hero-empty-btn{position:relative;z-index:1;background:#fff;color:var(--ink);border:none;border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;align-self:flex-start}
+
+/* stat cards */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.stat-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 17px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(20,21,26,.03)}
+.stat-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.stat-icon svg{width:16px;height:16px}
+.stat-icon.teal{background:var(--teal-bg);color:var(--teal)}
+.stat-icon.sky{background:var(--sky-bg);color:var(--sky)}
+.stat-label{font-size:11.5px;color:var(--ink3);margin-bottom:2px}
+.stat-value{font-size:16px;font-weight:800;letter-spacing:-.02em}
+
+/* reels list */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:26px 0 12px}
+.section-title{font-size:14px;font-weight:800;letter-spacing:-.01em}
+.reels-list{display:flex;flex-direction:column;gap:2px}
+.reel-row{display:flex;align-items:center;gap:13px;padding:11px 6px;border-radius:14px;cursor:pointer;transition:.15s;border-bottom:1px solid var(--line2)}
+.reel-row:hover{background:var(--line2)}
+.reel-thumb{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--sky-bg);display:flex;align-items:center;justify-content:center}
+.reel-thumb img{width:100%;height:100%;object-fit:cover}
+.reel-thumb svg{width:15px;height:15px;color:var(--sky)}
+.reel-info{flex:1;min-width:0}
+.reel-caption{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reel-meta{font-size:11px;color:var(--ink3);margin-top:2px}
+.reel-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.reel-views{font-size:13px;font-weight:700;font-family:var(--mono)}
+.reel-chevron{width:26px;height:26px;border-radius:50%;background:var(--line2);display:flex;align-items:center;justify-content:center;transition:.2s;color:var(--ink3)}
+.reel-row.open .reel-chevron{transform:rotate(90deg);background:var(--ink);color:#fff}
+.reel-analysis{max-height:0;overflow:hidden;transition:max-height .25s ease}
+.reel-analysis-inner{padding:6px 6px 18px 63px}
+
+.info-card{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:#fbfbfc;margin-top:8px}
+.info-label{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.info-label::before{content:'';width:3px;height:11px;background:linear-gradient(var(--teal),var(--sky));border-radius:2px}
+.info-text{font-size:12.5px;color:var(--ink2);line-height:1.65}
+.idea-card{border:1px solid var(--line);border-radius:14px;padding:14px 16px 14px 18px;background:#fbfbfc;margin-bottom:8px;position:relative;overflow:hidden}
+.idea-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(var(--teal),var(--sky))}
+.idea-hook{font-weight:700;font-size:12.5px;margin-bottom:4px}
+.idea-meta{font-size:10.5px;color:var(--teal);margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;font-weight:700}
+.idea-body{font-size:11.5px;color:var(--ink2);line-height:1.6}
+.spinner{width:15px;height:15px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:-2px;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+
+.empty-hint{text-align:center;padding:34px 16px;color:var(--ink3);font-size:12.5px}
+.big-btn{background:var(--ink);color:#fff;border:none;border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700}
+.big-btn:hover{background:#000}
+
+/* side column */
+.side-card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px 19px;box-shadow:0 1px 2px rgba(20,21,26,.03)}
+.side-card+.side-card{margin-top:16px}
+.side-title{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.side-value{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-top:4px;font-family:var(--mono)}
+.chart-wrap{margin-top:14px}
+.donut-wrap{display:flex;align-items:center;gap:16px;margin-top:14px}
+.donut-label{font-size:12px;color:var(--ink2);line-height:1.5}
+.donut-label b{display:block;font-size:19px;color:var(--ink);font-family:var(--mono)}
 </style>
 </head>
 <body>
@@ -98,51 +151,137 @@ label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase
     <input type="email" id="auth-email" placeholder="ornek@email.com">
     <label>Şifre</label>
     <input type="password" id="auth-password" placeholder="••••••••">
-    <div id="auth-err" class="hidden" style="color:var(--red);font-size:12px;margin-bottom:12px;background:var(--red-light);border-radius:8px;padding:8px 11px"></div>
-    <button class="btn btn-primary" onclick="signIn()" style="margin-bottom:8px">Giriş Yap</button>
+    <div id="auth-err" class="hidden err-box"></div>
+    <button class="btn btn-primary" onclick="signIn()">Giriş Yap</button>
     <button class="btn btn-ghost" onclick="signUp()">Kayıt Ol</button>
   </div>
 </div>
 
-<!-- ── MAIN APP ── -->
-<div class="wrap hidden" id="app">
-  <div class="topbar">
-    <div class="logo">
-      <div class="logo-mark">IG</div>
-      <div class="logo-name">Content AI</div>
-    </div>
-    <button class="btn-ghost btn" style="width:auto;padding:8px 14px" onclick="signOut()">Çıkış</button>
-  </div>
-
-  <!-- IG bağlı değilse -->
-  <div id="connect-card" class="card glow">
-    <div class="hero">Instagram hesabını bağla</div>
-    <div class="sub" style="margin-bottom:18px">Business/Creator hesabına bağlı Facebook Page ile giriş yap — reels verilerini analiz edelim.</div>
-    <button class="btn btn-primary" style="width:auto;padding:12px 22px" onclick="connectInstagram()">Facebook ile Bağlan →</button>
-  </div>
-
-  <!-- Bağlandıktan sonra görünecek panel -->
-  <div id="dashboard" class="hidden">
-    <div class="card" style="margin-bottom:14px">
-      <div class="section-title">Hesap</div>
-      <div class="sub" id="ig-account-label">—</div>
-      <button class="btn btn-primary" style="width:auto;padding:10px 18px;margin-top:12px" onclick="fetchMedia()">Reels'leri Çek</button>
+<!-- ── APP ── -->
+<div class="page-wrap hidden" id="app">
+  <div class="shell">
+    <div class="rail">
+      <div class="rail-logo">IG</div>
+      <div class="rail-nav">
+        <button class="rail-btn active" title="Panel" onclick="document.getElementById('col-main').scrollIntoView({behavior:'smooth'})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </button>
+        <button class="rail-btn" title="Reels" onclick="document.getElementById('reels-section')?.scrollIntoView({behavior:'smooth'})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        </button>
+      </div>
+      <button class="rail-logout" title="Çıkış" onclick="signOut()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
     </div>
 
-    <div id="loading-row" class="hidden card">
-      <div class="spinner"></div> Reels çekiliyor...
-    </div>
+    <div class="main">
+      <div class="topbar">
+        <div>
+          <div class="page-title">Panel</div>
+          <div class="page-sub">Instagram içerik performansı ve fikir önerileri</div>
+        </div>
+        <div class="pill" id="status-pill"><span class="pill-dot"></span><span id="status-pill-text">Bağlı değil</span></div>
+      </div>
 
-    <div id="media-section" class="hidden">
-      <div class="section-title">Son Reels — bir tanesine tıkla, analiz edelim</div>
-      <div class="media-grid" id="media-grid"></div>
+      <div class="content-grid">
+        <!-- ── SOL: DASHBOARD ── -->
+        <div id="col-main">
+
+          <!-- Bağlantı yok -->
+          <div id="connect-card">
+            <div class="hero-card">
+              <div class="hero-top">
+                <div class="hero-chip">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+                </div>
+                <div class="hero-signal"><span></span><span></span><span></span><span></span></div>
+              </div>
+              <div class="hero-handle">Bağlı hesap yok</div>
+              <div class="hero-bottom">
+                <div>
+                  <div class="hero-label">Durum</div>
+                  <div class="hero-value">Business/Creator hesabına bağlı bir Facebook Page ile giriş yap</div>
+                </div>
+              </div>
+              <button class="hero-empty-btn" onclick="connectInstagram()">Facebook ile Bağlan →</button>
+            </div>
+          </div>
+
+          <!-- Bağlıyken -->
+          <div id="dashboard" class="hidden">
+            <div class="hero-card">
+              <div class="hero-top">
+                <div class="hero-chip">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+                </div>
+                <div class="hero-signal"><span></span><span></span><span></span><span></span></div>
+              </div>
+              <div class="hero-handle" id="ig-account-label">—</div>
+              <div class="hero-bottom">
+                <div>
+                  <div class="hero-label">Durum</div>
+                  <div class="hero-value">Bağlandı</div>
+                </div>
+                <div class="hero-mark">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-card">
+                <div class="stat-icon teal">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                </div>
+                <div>
+                  <div class="stat-label">Çekilen Reels</div>
+                  <div class="stat-value" id="stat-total">0</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon sky">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <div>
+                  <div class="stat-label">Analiz Edilen</div>
+                  <div class="stat-value" id="stat-analyzed">0</div>
+                </div>
+              </div>
+            </div>
+
+            <button class="big-btn" style="margin-top:16px" onclick="fetchMedia()">Reels'leri Çek</button>
+
+            <div id="loading-row" class="hidden empty-hint"><div class="spinner"></div>Reels çekiliyor...</div>
+
+            <div id="media-section" class="hidden">
+              <div class="section-head" id="reels-section">
+                <div class="section-title">Son Reels</div>
+                <div class="page-sub">bir tanesine tıkla, analiz edelim</div>
+              </div>
+              <div class="reels-list" id="media-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SAĞ: KENAR PANELİ ── -->
+        <div id="col-side" class="hidden">
+          <div class="side-card">
+            <div class="side-title">İzlenme Trendi</div>
+            <div class="side-value" id="chart-peak">—</div>
+            <div class="chart-wrap" id="chart-holder"></div>
+          </div>
+          <div class="side-card">
+            <div class="side-title">Bu Oturumda İlerleme</div>
+            <div class="donut-wrap" id="donut-holder"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-
 <script>
-// ── Yapılandırma ──
 const SUPABASE_URL = "https://dgmidczqrhfifqgeiiuo.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnbWlkY3pxcmhmaWZxZ2VpaXVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0ODE2MzMsImV4cCI6MjEwMzA1NzYzM30.Gitr86DSYTOg_ptRN4wnBUffbCp3jPvRPRVgA1sSP1o";
 const WORKER_URL = "https://dgmidczqrhfifqgeiiuo.supabase.co/functions/v1/igcontent-api";
@@ -150,9 +289,10 @@ const FB_APP_ID = "4195978024037335";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
-let igAccount = null; // { ig_user_id, access_token, username }
+let igAccount = null;
+let mediaList = [];
+let analyzedCount = 0;
 
-// ── AUTH ──
 async function signIn() {
   const email = document.getElementById('auth-email').value;
   const password = document.getElementById('auth-password').value;
@@ -187,10 +327,16 @@ async function boot() {
   if (rows && rows.length) {
     const row = rows[0];
     igAccount = { ig_user_id: row.ig_user_id, access_token: row.encrypted_token, fb_page_id: row.fb_page_id };
-    document.getElementById('connect-card').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
-    document.getElementById('ig-account-label').textContent = `Bağlandı: ${row.ig_username || row.ig_user_id}`;
+    showConnected(row.ig_username || row.ig_user_id);
   }
+}
+
+function showConnected(label) {
+  document.getElementById('connect-card').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  document.getElementById('col-side').classList.remove('hidden');
+  document.getElementById('ig-account-label').textContent = `@${label}`;
+  document.getElementById('status-pill-text').textContent = 'Bağlı';
 }
 
 // ── INSTAGRAM OAUTH (Facebook Login) ──
@@ -209,14 +355,12 @@ function connectInstagram() {
 }
 
 async function exchangeAndListAccounts(shortToken) {
-  // 1) uzun ömürlü token'a çevir (worker üzerinden — App Secret frontend'e çıkmaz)
   const exch = await fetch(`${WORKER_URL}/exchange-token`, {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ short_lived_token: shortToken })
   }).then(r => r.json());
   const longToken = exch.access_token;
 
-  // 2) bağlı IG business hesaplarını listele
   const pages = await fetch(`${WORKER_URL}/ig-accounts`, {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ access_token: longToken })
@@ -242,13 +386,14 @@ async function exchangeAndListAccounts(shortToken) {
     encrypted_token: longToken
   }, { onConflict: 'user_id,ig_user_id' });
 
-  document.getElementById('connect-card').classList.add('hidden');
-  document.getElementById('dashboard').classList.remove('hidden');
-  document.getElementById('ig-account-label').textContent = `Bağlandı: ${pageWithIG.name}`;
+  showConnected(pageWithIG.name);
 }
 
 // ── REELS ÇEK ──
-let mediaList = [];
+function fmtNum(n) {
+  n = Number(n) || 0;
+  return n.toLocaleString('tr-TR');
+}
 
 async function fetchMedia() {
   document.getElementById('loading-row').classList.remove('hidden');
@@ -260,45 +405,51 @@ async function fetchMedia() {
   }).then(r => r.json());
 
   mediaList = mediaRes.data || [];
+  analyzedCount = 0;
   renderMedia(mediaList);
+  renderStats(mediaList);
+  renderChart(mediaList);
+  updateProgress();
   document.getElementById('loading-row').classList.add('hidden');
 }
 
-function fmtNum(n) {
-  n = Number(n) || 0;
-  return n.toLocaleString('tr-TR');
+function getMetric(m, name) {
+  return (m.insights.find(x => x.name === name) || {}).values?.[0]?.value;
+}
+
+function renderStats(list) {
+  document.getElementById('stat-total').textContent = fmtNum(list.length);
+  document.getElementById('stat-analyzed').textContent = fmtNum(analyzedCount);
 }
 
 function renderMedia(list) {
   const grid = document.getElementById('media-grid');
   grid.innerHTML = list.map((m, i) => {
-    const get = name => (m.insights.find(x => x.name === name) || {}).values?.[0]?.value;
-    const views = get('plays');
-    const likes = get('likes');
-    const comments = get('comments');
-    const saved = get('saved');
+    const views = getMetric(m, 'views') ?? getMetric(m, 'plays');
+    const likes = getMetric(m, 'likes');
     const thumb = m.thumbnail_url || (m.media_type === 'IMAGE' ? m.media_url : '');
-    const caption = (m.caption || '(caption yok)').slice(0, 90);
-
-    const statBadges = [
-      views != null ? `<span class="stat-badge">▶ <b>${fmtNum(views)}</b></span>` : '',
-      likes != null ? `<span class="stat-badge">♥ <b>${fmtNum(likes)}</b></span>` : '',
-      comments != null ? `<span class="stat-badge">💬 <b>${fmtNum(comments)}</b></span>` : '',
-      saved != null ? `<span class="stat-badge">🔖 <b>${fmtNum(saved)}</b></span>` : '',
-    ].filter(Boolean).join('');
+    const caption = (m.caption || '(caption yok)').slice(0, 70);
+    const metaParts = [];
+    if (views != null) metaParts.push(`${fmtNum(views)} izlenme`);
+    if (likes != null) metaParts.push(`${fmtNum(likes)} beğeni`);
 
     return `
-    <div class="media-row" id="row-${i}">
-      <div class="media-row-head" onclick="toggleAnalysis(${i})">
-        <div class="media-thumb">${thumb ? `<img src="${thumb}" onerror="this.parentElement.innerHTML='<span class=fallback>▶</span>'">` : `<span class="fallback">▶</span>`}</div>
-        <div class="media-row-info">
-          <div class="media-row-caption">${caption}</div>
-          <div class="media-row-stats">${statBadges || '<span class="stat-badge">veri yok</span>'}</div>
-        </div>
-        <div class="media-row-chevron">▶</div>
+    <div class="reel-row" id="row-${i}">
+      <div class="reel-thumb" onclick="event.stopPropagation();toggleAnalysis(${i})">
+        ${thumb ? `<img src="${thumb}" onerror="this.parentElement.innerHTML='<svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><polygon points=&quot;5 3 19 12 5 21 5 3&quot;/></svg>'">` :
+          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>`}
       </div>
-      <div class="media-analysis" id="analysis-${i}">
-        <div class="media-analysis-inner" id="analysis-inner-${i}"></div>
+      <div class="reel-info" onclick="toggleAnalysis(${i})">
+        <div class="reel-caption">${caption}</div>
+        <div class="reel-meta">${metaParts.join(' · ') || (m.insights_error ? m.insights_error.slice(0,50) : 'veri yok')}</div>
+      </div>
+      <div class="reel-right" onclick="toggleAnalysis(${i})">
+        <div class="reel-chevron">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+      <div class="reel-analysis" id="analysis-${i}" style="width:100%">
+        <div class="reel-analysis-inner" id="analysis-inner-${i}"></div>
       </div>
     </div>`;
   }).join('');
@@ -320,7 +471,7 @@ async function toggleAnalysis(i) {
   row.classList.add('open');
 
   if (!inner.dataset.loaded) {
-    inner.innerHTML = `<div class="analysis-block"><div class="spinner"></div> Analiz ediliyor...</div>`;
+    inner.innerHTML = `<div class="info-card"><div class="spinner"></div>Analiz ediliyor...</div>`;
     panel.style.maxHeight = '80px';
 
     const m = mediaList[i];
@@ -331,6 +482,9 @@ async function toggleAnalysis(i) {
 
     renderSingleAnalysis(inner, res);
     inner.dataset.loaded = '1';
+    analyzedCount++;
+    renderStats(mediaList);
+    updateProgress();
   }
   panel.style.maxHeight = inner.scrollHeight + 40 + 'px';
 }
@@ -344,9 +498,9 @@ function renderSingleAnalysis(inner, res) {
   } catch { parsed = null; }
 
   if (!parsed) {
-    inner.innerHTML = `<div class="analysis-block">
-      <div class="analysis-label">Ham Yanıt (JSON parse edilemedi)</div>
-      <div class="analysis-text" style="white-space:pre-wrap">${(rawText || JSON.stringify(res)).slice(0, 1500)}</div>
+    inner.innerHTML = `<div class="info-card">
+      <div class="info-label">Ham Yanıt</div>
+      <div class="info-text" style="white-space:pre-wrap">${(rawText || JSON.stringify(res)).slice(0, 1500)}</div>
     </div>`;
     return;
   }
@@ -356,25 +510,81 @@ function renderSingleAnalysis(inner, res) {
   const ideas = parsed.ideas || [];
 
   inner.innerHTML = `
-    <div class="analysis-block">
-      <div class="analysis-label">Performans Yorumu</div>
-      <div class="info-card"><div class="analysis-text">${verdict}</div></div>
+    <div class="info-card">
+      <div class="info-label">Performans Yorumu</div>
+      <div class="info-text">${verdict}</div>
     </div>
-    <div class="analysis-block">
-      <div class="analysis-label">Hook Analizi</div>
-      <div class="info-card"><div class="analysis-text">${hook}</div></div>
+    <div class="info-card">
+      <div class="info-label">Hook Analizi</div>
+      <div class="info-text">${hook}</div>
     </div>
-    <div class="analysis-block">
-      <div class="analysis-label">Buna Benzer 3 Yeni Fikir</div>
+    <div style="margin-top:8px">
+      <div class="info-label" style="margin-bottom:8px">Buna Benzer 3 Yeni Fikir</div>
       ${ideas.map(idea => `
         <div class="idea-card">
           <div class="idea-hook">${idea.hook || ''}</div>
           <div class="idea-meta">${idea.format || ''} · ${idea.topic || ''}</div>
           <div class="idea-body">${idea.script_outline || ''}</div>
         </div>
-      `).join('') || '<div class="info-card"><div class="analysis-text">Fikir üretilemedi.</div></div>'}
+      `).join('') || '<div class="info-card"><div class="info-text">Fikir üretilemedi.</div></div>'}
     </div>
   `;
+}
+
+// ── SAĞ PANEL: GERÇEK VERİLİ GRAFİK + İLERLEME ──
+function renderChart(list) {
+  const views = list.map(m => Number(getMetric(m, 'views') ?? getMetric(m, 'plays') ?? 0)).reverse();
+  const holder = document.getElementById('chart-holder');
+  const peakEl = document.getElementById('chart-peak');
+
+  if (!views.length || views.every(v => v === 0)) {
+    peakEl.textContent = '—';
+    holder.innerHTML = `<div class="empty-hint" style="padding:20px 0">İzlenme verisi yok</div>`;
+    return;
+  }
+
+  const max = Math.max(...views, 1);
+  peakEl.textContent = fmtNum(max) + ' en yüksek';
+
+  const w = 260, h = 90, pad = 6;
+  const stepX = views.length > 1 ? (w - pad * 2) / (views.length - 1) : 0;
+  const pts = views.map((v, i) => {
+    const x = pad + i * stepX;
+    const y = h - pad - (v / max) * (h - pad * 2);
+    return [x, y];
+  });
+  const linePath = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const areaPath = linePath + ` L${pts[pts.length-1][0].toFixed(1)},${h-pad} L${pts[0][0].toFixed(1)},${h-pad} Z`;
+
+  holder.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0d9488" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#0d9488" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="${areaPath}" fill="url(#chartFill)"/>
+      <path d="${linePath}" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+}
+
+function updateProgress() {
+  const total = mediaList.length || 0;
+  const pct = total ? Math.round((analyzedCount / total) * 100) : 0;
+  const holder = document.getElementById('donut-holder');
+  const r = 30, c = 2 * Math.PI * r;
+  const offset = c - (pct / 100) * c;
+
+  holder.innerHTML = `
+    <svg width="72" height="72" viewBox="0 0 72 72">
+      <circle cx="36" cy="36" r="${r}" fill="none" stroke="#eef1f5" stroke-width="8"/>
+      <circle cx="36" cy="36" r="${r}" fill="none" stroke="#0d9488" stroke-width="8"
+        stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"
+        transform="rotate(-90 36 36)"/>
+      <text x="36" y="41" text-anchor="middle" font-size="15" font-weight="800" font-family="var(--mono)" fill="#14151a">${pct}%</text>
+    </svg>
+    <div class="donut-label"><b>${analyzedCount} / ${total}</b>reels analiz edildi</div>`;
 }
 
 // ── BAŞLANGIÇ ──
