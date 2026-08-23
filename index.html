@@ -200,7 +200,7 @@ async function exchangeAndListAccounts(shortToken) {
     body: JSON.stringify({ access_token: longToken })
   }).then(r => r.json());
 
-  console.log('PAGES DATA:', JSON.stringify(pages, null, 2));
+  alert('PAGES DATA: ' + JSON.stringify(pages).slice(0, 800));
 
   const pageWithIG = (pages.data || []).find(p => p.instagram_business_account);
   if (!pageWithIG) {
