@@ -183,7 +183,7 @@ function connectInstagram() {
       const shortToken = response.authResponse.accessToken;
       exchangeAndListAccounts(shortToken);
     }
-  }, { scope: 'instagram_business_basic,instagram_business_manage_insights,pages_show_list' });
+  }, { scope: 'instagram_basic,pages_read_engagement,pages_show_list,business_management,instagram_manage_insights' });
 }
 
 async function exchangeAndListAccounts(shortToken) {
