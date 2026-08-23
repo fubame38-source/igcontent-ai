@@ -29,7 +29,6 @@ body{
   background-attachment:fixed;
 }
 .wrap{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
-/* AUTH */
 #auth-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:100}
 #auth-screen::before{content:'';position:absolute;top:-10%;left:-10%;width:500px;height:500px;background:radial-gradient(circle,var(--cyan-glow),transparent 70%);filter:blur(40px);opacity:.5;pointer-events:none}
 .auth-card{width:100%;max-width:380px;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:20px;backdrop-filter:blur(20px);position:relative;z-index:1;box-shadow:0 40px 100px rgba(0,0,0,.5)}
@@ -43,7 +42,6 @@ label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase
 .btn-primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#00201c;box-shadow:0 6px 20px var(--cyan-glow)}
 .btn-primary:hover{transform:translateY(-1px)}
 .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
-/* MAIN */
 .hidden{display:none!important}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;backdrop-filter:blur(10px)}
@@ -68,7 +66,6 @@ label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase
 </head>
 <body>
 
-<!-- ── AUTH ── -->
 <div id="auth-screen">
   <div class="auth-card">
     <div class="logo">
@@ -85,7 +82,6 @@ label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase
   </div>
 </div>
 
-<!-- ── MAIN APP ── -->
 <div class="wrap hidden" id="app">
   <div class="topbar">
     <div class="logo">
@@ -95,14 +91,12 @@ label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase
     <button class="btn-ghost btn" style="width:auto;padding:8px 14px" onclick="signOut()">Çıkış</button>
   </div>
 
-  <!-- IG bağlı değilse -->
   <div id="connect-card" class="card glow">
     <div class="hero">Instagram hesabını bağla</div>
     <div class="sub" style="margin-bottom:18px">Business/Creator hesabına bağlı Facebook Page ile giriş yap — reels verilerini analiz edelim.</div>
     <button class="btn btn-primary" style="width:auto;padding:12px 22px" onclick="connectInstagram()">Facebook ile Bağlan →</button>
   </div>
 
-  <!-- Bağlandıktan sonra görünecek panel -->
   <div id="dashboard" class="hidden">
     <div class="card" style="margin-bottom:14px">
       <div class="section-title">Hesap</div>
@@ -127,7 +121,6 @@ label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase
 </div>
 
 <script>
-// ── Yapılandırma ──
 const SUPABASE_URL = "https://dgmidczqrhfifqgeiiuo.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnbWlkY3pxcmhmaWZxZ2VpaXVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0ODE2MzMsImV4cCI6MjEwMzA1NzYzM30.Gitr86DSYTOg_ptRN4wnBUffbCp3jPvRPRVgA1sSP1o";
 const WORKER_URL = "https://dgmidczqrhfifqgeiiuo.supabase.co/functions/v1/igcontent-api";
@@ -135,9 +128,8 @@ const FB_APP_ID = "4195978024037335";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
-let igAccount = null; // { ig_user_id, access_token, username }
+let igAccount = null;
 
-// ── AUTH ──
 async function signIn() {
   const email = document.getElementById('auth-email').value;
   const password = document.getElementById('auth-password').value;
@@ -167,11 +159,8 @@ function showAuthErr(msg) {
 async function boot() {
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  // TODO: Supabase'den bağlı ig_accounts kaydı var mı kontrol et
-  // varsa igAccount'u doldur ve dashboard'u göster
 }
 
-// ── INSTAGRAM OAUTH (Facebook Login) ──
 window.fbAsyncInit = function() {
   FB.init({ appId: FB_APP_ID, cookie: true, xfbml: false, version: 'v19.0' });
 };
@@ -183,18 +172,16 @@ function connectInstagram() {
       const shortToken = response.authResponse.accessToken;
       exchangeAndListAccounts(shortToken);
     }
-  }, { scope: 'instagram_basic,instagram_manage_insights,pages_show_list' });
+  }, { scope: 'instagram_business_basic,instagram_business_manage_insights,pages_show_list' });
 }
 
 async function exchangeAndListAccounts(shortToken) {
-  // 1) uzun ömürlü token'a çevir (worker üzerinden — App Secret frontend'e çıkmaz)
   const exch = await fetch(`${WORKER_URL}/exchange-token`, {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ short_lived_token: shortToken })
   }).then(r => r.json());
   const longToken = exch.access_token;
 
-  // 2) bağlı IG business hesaplarını listele
   const pages = await fetch(`${WORKER_URL}/ig-accounts`, {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ access_token: longToken })
@@ -212,14 +199,11 @@ async function exchangeAndListAccounts(shortToken) {
     fb_page_id: pageWithIG.id
   };
 
-  // TODO: Supabase ig_accounts tablosuna kaydet (token'ı worker üzerinden şifreleyerek)
-
   document.getElementById('connect-card').classList.add('hidden');
   document.getElementById('dashboard').classList.remove('hidden');
   document.getElementById('ig-account-label').textContent = `Bağlandı: ${pageWithIG.name}`;
 }
 
-// ── REELS ÇEK + ANALİZ ──
 async function fetchAndAnalyze() {
   document.getElementById('loading-row').classList.remove('hidden');
   document.getElementById('media-section').classList.add('hidden');
@@ -273,7 +257,6 @@ function renderIdeas(analysisRes) {
   document.getElementById('ideas-section').classList.remove('hidden');
 }
 
-// ── BAŞLANGIÇ ──
 sb.auth.getSession().then(({ data }) => {
   if (data.session) { currentUser = data.session.user; boot(); }
 });
