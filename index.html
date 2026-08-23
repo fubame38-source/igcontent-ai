@@ -200,6 +200,8 @@ async function exchangeAndListAccounts(shortToken) {
     body: JSON.stringify({ access_token: longToken })
   }).then(r => r.json());
 
+  console.log('PAGES DATA:', JSON.stringify(pages, null, 2));
+
   const pageWithIG = (pages.data || []).find(p => p.instagram_business_account);
   if (!pageWithIG) {
     alert("Bağlı bir Instagram Business hesabı bulunamadı. Hesabının Business/Creator olduğundan ve bir Facebook Page'e bağlı olduğundan emin ol.");
