@@ -44,15 +44,15 @@ input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-bg)}
 .shell{width:100%;max-width:1180px;background:var(--panel);border-radius:28px;box-shadow:0 24px 70px rgba(20,21,26,.07);display:flex;overflow:hidden;min-height:calc(100vh - 52px)}
 
 /* rail */
-.rail{width:76px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:22px 0;border-right:1px solid var(--line2)}
-.rail-logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#1c1d22,#33353d);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:12px;margin-bottom:32px}
+.rail{width:88px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:20px 0;margin:16px 0 16px 16px;background:#111216;border-radius:28px}
+.rail-logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#0d9488,#0284c7);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:12px;margin-bottom:32px}
 .rail-nav{display:flex;flex-direction:column;gap:10px;flex:1}
-.rail-btn{width:42px;height:42px;border-radius:13px;border:none;background:transparent;color:var(--ink3);display:flex;align-items:center;justify-content:center;transition:.15s}
-.rail-btn:hover{background:var(--line2);color:var(--ink2)}
-.rail-btn.active{background:var(--ink);color:#fff}
+.rail-btn{width:44px;height:44px;border-radius:14px;border:none;background:transparent;color:rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;transition:.15s}
+.rail-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+.rail-btn.active{background:#fff;color:#111216}
 .rail-btn svg{width:19px;height:19px}
-.rail-logout{width:42px;height:42px;border-radius:13px;border:none;background:transparent;color:var(--ink3);display:flex;align-items:center;justify-content:center}
-.rail-logout:hover{background:var(--red-bg);color:var(--red)}
+.rail-logout{width:44px;height:44px;border-radius:14px;border:none;background:transparent;color:rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center}
+.rail-logout:hover{background:rgba(220,38,38,.18);color:#f87171}
 
 /* main */
 .main{flex:1;padding:26px 30px 40px;min-width:0}
@@ -105,8 +105,11 @@ input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-bg)}
 .reel-info{flex:1 1 auto;min-width:0}
 .reel-caption{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
 .reel-meta{font-size:11.5px;color:var(--ink3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.reel-chevron{width:28px;height:28px;border-radius:50%;background:var(--line2);display:flex;align-items:center;justify-content:center;transition:.2s;color:var(--ink3);flex-shrink:0}
-.reel-row.open .reel-chevron{transform:rotate(90deg);background:var(--ink);color:#fff}
+.reel-chevron{padding:0 14px;height:32px;border-radius:100px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;gap:5px;transition:.2s;flex-shrink:0;font-size:11.5px;font-weight:700}
+.chevron-label{white-space:nowrap}
+.reel-chevron svg{width:11px;height:11px;transition:.2s}
+.reel-row.open .reel-chevron svg{transform:rotate(90deg)}
+.rate-badge{display:inline-flex;align-items:center;gap:3px;color:var(--teal);font-weight:700}
 .reel-analysis{max-height:0;overflow:hidden;transition:max-height .25s ease}
 .reel-analysis-inner{padding:4px 10px 20px 74px}
 
@@ -426,11 +429,18 @@ function renderMedia(list) {
   grid.innerHTML = list.map((m, i) => {
     const views = getMetric(m, 'views') ?? getMetric(m, 'plays');
     const likes = getMetric(m, 'likes');
+    const comments = getMetric(m, 'comments');
+    const saved = getMetric(m, 'saved');
+    const shares = getMetric(m, 'shares');
     const thumb = m.thumbnail_url || (m.media_type === 'IMAGE' ? m.media_url : '');
     const caption = (m.caption || '(caption yok)').slice(0, 70);
     const metaParts = [];
     if (views != null) metaParts.push(`${fmtNum(views)} izlenme`);
     if (likes != null) metaParts.push(`${fmtNum(likes)} beğeni`);
+    if (views && (likes != null || comments != null || saved != null || shares != null)) {
+      const engagement = ((Number(likes||0) + Number(comments||0) + Number(saved||0) + Number(shares||0)) / views) * 100;
+      metaParts.push(`<span class="rate-badge">%${engagement.toFixed(1)} etkileşim</span>`);
+    }
     const metaText = metaParts.join(' · ') || (m.insights_error ? m.insights_error.slice(0,50) : 'veri yok');
     const fallbackIcon = `<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><polygon points='5 3 19 12 5 21 5 3'/></svg>`;
 
@@ -445,7 +455,8 @@ function renderMedia(list) {
           <div class="reel-meta">${metaText}</div>
         </div>
         <div class="reel-chevron">
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          <span class="chevron-label">İncele</span>
+          <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>
       <div class="reel-analysis" id="analysis-${i}">
@@ -506,6 +517,7 @@ function renderSingleAnalysis(inner, res) {
   }
 
   const verdict = parsed.performance_verdict || 'Yorum üretilemedi.';
+  const viralReason = parsed.viral_reason || '';
   const hook = parsed.hook_analysis || '—';
   const ideas = parsed.ideas || [];
 
@@ -514,6 +526,11 @@ function renderSingleAnalysis(inner, res) {
       <div class="info-label">Performans Yorumu</div>
       <div class="info-text">${verdict}</div>
     </div>
+    ${viralReason ? `
+    <div class="info-card">
+      <div class="info-label">Neden Bu Kadar İzlendi/İzlenmedi</div>
+      <div class="info-text">${viralReason}</div>
+    </div>` : ''}
     <div class="info-card">
       <div class="info-label">Hook Analizi</div>
       <div class="info-text">${hook}</div>
@@ -525,6 +542,7 @@ function renderSingleAnalysis(inner, res) {
           <div class="idea-hook">${idea.hook || ''}</div>
           <div class="idea-meta">${idea.format || ''} · ${idea.topic || ''}</div>
           <div class="idea-body">${idea.script_outline || ''}</div>
+          ${idea.why_it_could_work ? `<div class="idea-body" style="margin-top:6px;color:var(--teal);font-weight:600">→ ${idea.why_it_could_work}</div>` : ''}
         </div>
       `).join('') || '<div class="info-card"><div class="info-text">Fikir üretilemedi.</div></div>'}
     </div>
