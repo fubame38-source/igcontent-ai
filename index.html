@@ -117,6 +117,11 @@ input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-bg)}
 .info-label{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);margin-bottom:7px;display:flex;align-items:center;gap:6px}
 .info-label::before{content:'';width:3px;height:11px;background:linear-gradient(var(--teal),var(--sky));border-radius:2px}
 .info-text{font-size:12.5px;color:var(--ink2);line-height:1.65}
+.break-row{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line2)}
+.break-row:first-child{border-top:none;padding-top:2px}
+.break-tag{flex-shrink:0;width:110px;font-size:11px;font-weight:700;color:var(--ink);background:var(--sky-bg);padding:4px 9px;border-radius:8px;text-align:center;line-height:1.3}
+.break-tag-quote{background:var(--teal-bg);font-style:italic;font-weight:600;font-size:10.5px}
+.break-text{flex:1;font-size:12px;color:var(--ink2);line-height:1.5;padding-top:2px}
 .idea-card{border:1px solid var(--line);border-radius:14px;padding:14px 16px 14px 18px;background:#fbfbfc;margin-bottom:8px;position:relative;overflow:hidden}
 .idea-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(var(--teal),var(--sky))}
 .idea-hook{font-weight:700;font-size:12.5px;margin-bottom:4px}
@@ -528,24 +533,37 @@ function renderSingleAnalysis(inner, res) {
   }
 
   const verdict = parsed.performance_verdict || 'Yorum üretilemedi.';
-  const viralReason = parsed.viral_reason || '';
-  const hook = parsed.hook_analysis || '—';
+  const triggers = parsed.viral_triggers || [];
+  const hookParts = parsed.hook_breakdown || [];
   const ideas = parsed.ideas || [];
+
+  const triggerRows = triggers.map(t => `
+    <div class="break-row">
+      <div class="break-tag">${t.trigger || ''}</div>
+      <div class="break-text">${t.explanation || ''}</div>
+    </div>`).join('');
+
+  const hookRows = hookParts.map(h => `
+    <div class="break-row">
+      <div class="break-tag break-tag-quote">"${h.phrase || ''}"</div>
+      <div class="break-text">${h.effect || ''}</div>
+    </div>`).join('');
 
   inner.innerHTML = `
     <div class="info-card">
       <div class="info-label">Performans Yorumu</div>
       <div class="info-text">${verdict}</div>
     </div>
-    ${viralReason ? `
+    ${triggerRows ? `
     <div class="info-card">
       <div class="info-label">Neden Bu Kadar İzlendi/İzlenmedi</div>
-      <div class="info-text">${viralReason}</div>
+      ${triggerRows}
     </div>` : ''}
+    ${hookRows ? `
     <div class="info-card">
       <div class="info-label">Hook Analizi</div>
-      <div class="info-text">${hook}</div>
-    </div>
+      ${hookRows}
+    </div>` : ''}
     <div style="margin-top:8px">
       <div class="info-label" style="margin-bottom:8px">Buna Benzer 3 Yeni Fikir</div>
       ${ideas.map(idea => `
