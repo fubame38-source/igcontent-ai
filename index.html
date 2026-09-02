@@ -380,13 +380,24 @@ async function exchangeAndListAccounts(shortToken) {
     fb_page_id: pageWithIG.id
   };
 
-  await sb.from('ig_accounts').upsert({
+  // ig_accounts.user_id -> profiles(id) foreign key'i için önce profiles satırının var olduğundan emin ol
+  const profileErr = (await sb.from('profiles').upsert({
+    id: currentUser.id,
+    email: currentUser.email
+  }, { onConflict: 'id' })).error;
+  if (profileErr) console.error('profiles upsert hatası:', profileErr);
+
+  const { error: igErr } = await sb.from('ig_accounts').upsert({
     user_id: currentUser.id,
     ig_user_id: igAccount.ig_user_id,
     ig_username: pageWithIG.name,
     fb_page_id: igAccount.fb_page_id,
     encrypted_token: longToken
   }, { onConflict: 'user_id,ig_user_id' });
+  if (igErr) {
+    console.error('ig_accounts upsert hatası:', igErr);
+    alert('Bağlantı kaydedilemedi: ' + igErr.message + '\nHer yenilemede tekrar bağlanman gerekecek.');
+  }
 
   showConnected(pageWithIG.name);
 }
